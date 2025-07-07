@@ -65,8 +65,9 @@ export default class AdminCompanyController implements IAdminCompanyController {
     async updateRequestStatus(req: Request, res: Response): Promise<void> {
         try {
             const { companyId } = req.params;
+            logger.debug('updating request stauts', req.body);
             const { status } = req.body;
-
+            
             if (!["approved", "rejected"].includes(status)) {
                 res.status(HttpStatus.BAD_REQUEST).json(errorResponse("Invalid status"));
             }
@@ -82,3 +83,4 @@ export default class AdminCompanyController implements IAdminCompanyController {
         }
     }
 }
+

@@ -15,6 +15,7 @@ const companyController = container.get<AdminCompanyController>(
 
 //Authentication
 router.post("/login", userController.login.bind(userController));
+router.post("/logout", verifyToken("admin"), userController.logout.bind(userController));
 
 //User Management
 router.get(

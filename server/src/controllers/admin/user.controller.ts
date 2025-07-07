@@ -57,4 +57,17 @@ export default class AdminUserController implements IAdminUserController {
             res.status(HttpStatus.BAD_REQUEST).json(errorResponse("Internal server error", err.message));
         }
     }
+
+    async logout(req: Request, res: Response): Promise<void> {
+        try {
+            res.clearCookie("adminAccessToken");
+            res.clearCookie("adminRefreshToken");
+
+            res.status(HttpStatus.OK).json(successResponse("Admin logged out!"));
+        } catch (error) {
+            const err = error as Error;
+            logger.error("logout adm error", err);
+            res.status(HttpStatus.BAD_REQUEST).json(errorResponse("Failed to log out", err.message));
+        }
+    }
 }

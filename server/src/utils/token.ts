@@ -23,21 +23,21 @@ export const setTokensAsCookies = (
     refreshToken: string,
     role: UserRole
 ) => {
+    console.log('setting cookies..');
     const accessTokenName = `${role}AccessToken`;
     const refreshTokenName = `${role}RefreshToken`;
 
     res.cookie(accessTokenName, accessToken, {
         httpOnly: true,
-        secure: false,
+        secure: true,
         sameSite: "none",
         maxAge: 7 * 60 * 60 * 1000,
     });
     
     res.cookie(refreshTokenName, refreshToken, {
         httpOnly: true,
-        secure: false,
+        secure: true,
         sameSite: "none",
         maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-    
+    }); 
 }

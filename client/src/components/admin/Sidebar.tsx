@@ -1,10 +1,12 @@
 "use client"
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { GiSkills } from "react-icons/gi";
 import { MdOutlineCategory } from "react-icons/md";
 import { TbReportMoney } from "react-icons/tb";
 import { FiUsers, FiGrid, FiLogOut, FiHelpCircle, FiBookmark, FiBriefcase } from 'react-icons/fi';
+import { adminLogout } from '@/lib/api/admin/login';
+import { toast } from 'sonner';
 
 const menuItems = [
   { name: 'Dashboard', icon: <FiGrid />, href: '/admin/dashboard' },
@@ -23,6 +25,18 @@ const settingItems = [
 
 const CompanySidebar = () => {
   const pathname = usePathname();
+   const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await adminLogout(); 
+      toast.success("Logged out successfully!");
+      router.replace("/admin/login");
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message || "Logout failed");
+    }
+  };
 
   return (
     <aside className="w-64 bg-[#E2FBFF] min-h-screen p-6 hidden md:block absolute left-0 top-20">
@@ -43,16 +57,27 @@ const CompanySidebar = () => {
         </nav>
 
         <div className="mt-16 border-t pt-4 space-y-6">
-          {settingItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="flex items-center space-x-3 p-2 rounded-md text-sm font-medium text-gray-700 hover:bg-white transition"
-            >
-              <span className="text-lg">{item.icon}</span>
-              <span>{item.name}</span>
-            </Link>
-          ))}
+          {settingItems.map((item) =>
+            item.name === "Logout" ? (
+              <button
+                key={item.name}
+                onClick={handleLogout}
+                className="flex items-center space-x-3 p-2 rounded-md text-sm font-medium text-gray-700 hover:bg-white transition w-full"
+              >
+                <span className="text-lg">{item.icon}</span>
+                <span>{item.name}</span>
+              </button>
+            ) : (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="flex items-center space-x-3 p-2 rounded-md text-sm font-medium text-gray-700 hover:bg-white transition"
+              >
+                <span className="text-lg">{item.icon}</span>
+                <span>{item.name}</span>
+              </Link>
+            )
+          )}
         </div>
       </div>
     </aside>

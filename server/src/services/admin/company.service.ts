@@ -18,7 +18,7 @@ export default class AdminCompanyService implements IAdminCompanyService {
             _id: (company._id as string).toString(),
             name: company.name,
             email: company.email,
-            isBlocked: company.isBlocked,
+            isBlocked: company.isBlocked, 
             status: company.status,
             kyc: company.kyc,
             createdAt: company.createdAt
@@ -28,6 +28,7 @@ export default class AdminCompanyService implements IAdminCompanyService {
     }
 
     async blockUnblockCompany(companyId: string, isBlocked: boolean): Promise<{ message: string; }> {
+        
         const result = await this.repository.updateBlockStatus(companyId, isBlocked);
         return { message: "Company status updated."}
     }

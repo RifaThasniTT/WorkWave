@@ -18,4 +18,8 @@ export interface IUserAuthService {
     resendOtp(email: string): Promise<{
         message: string
     }>
+
+    resetPassword(email: string, password: string): Promise<{
+        message: string
+    }>
 }

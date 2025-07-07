@@ -20,4 +20,13 @@ export default class CompanyProfileService implements ICompanyProfileService {
 
         return profile;
     }
+
+    async updateProfile(companyId: string, data: Partial<CompanyProfileDto>): Promise<CompanyProfileDto> {
+      const updated = await this.repository.updateProfile(companyId, data);
+      if (!updated) {
+        throw new Error("Failed to update company profile");
+      }
+      return updated;
+    }
+
 }

@@ -1,33 +1,37 @@
-"use client"
-import React, { useState } from 'react'
+"use client";
+import React, { useState } from "react";
 
 interface SearchBarProps {
-    placeholder?: string;
-    onSearch: (query: string) => void;
+  placeholder?: string;
+  onSearch: (query: string) => void;
 }
-const SearchBar:React.FC<SearchBarProps> = ({
-    placeholder = "Search...",
-    onSearch,
+
+const SearchBar: React.FC<SearchBarProps> = ({
+  placeholder = "Search...",
+  onSearch,
 }) => {
+  const [query, setQuery] = useState("");
 
-    const [query, setQuery] = useState("");
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setQuery(value.trim());
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmedQuery = query.trim();
+    onSearch(trimmedQuery);
+  };
 
   return (
-    <div className={`flex justify-end rounded-lg px-10 pt-5 py-2 shadow-l`}>
+    <form
+      onSubmit={handleSubmit}
+      className="flex justify-end rounded-lg px-10 pt-5 py-2"
+    >
       <input
         type="text"
         value={query}
-        onChange={handleChange}
+        onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}
         className="outline-[#09B9FF] w-4/12 bg-white shadow-lg text-sm p-4 rounded-lg"
       />
-    </div>
-  )
-}
+    </form>
+  );
+};
 
-export default SearchBar
+export default SearchBar;

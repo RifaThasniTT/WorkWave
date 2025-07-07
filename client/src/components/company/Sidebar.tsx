@@ -1,7 +1,8 @@
 "use client";
 
+import { logout } from "@/lib/api/company/auth";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   FiHome,
   FiMessageSquare,
@@ -11,6 +12,7 @@ import {
   FiLogOut,
   FiHelpCircle,
 } from "react-icons/fi";
+import { toast } from "sonner";
 
 const navItems = [
   { name: "Dashboard", href: "/company/dashboard", icon: <FiHome /> },
@@ -27,6 +29,19 @@ const settingItems = [
 
 export default function CompanySidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await logout(); // call the API
+      toast.success("Logged out successfully!");
+      router.replace("/company/login");
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message || "Logout failed");
+    }
+  };
+
 
   return (
     <aside className="w-64 bg-[#E2FBFF] min-h-screen p-6 hidden md:block absolute left-0 top-20">
@@ -47,16 +62,27 @@ export default function CompanySidebar() {
         </nav>
 
         <div className="mt-16 border-t pt-4 space-y-6">
-          {settingItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="flex items-center space-x-3 p-2 rounded-md text-sm font-medium text-gray-700 hover:bg-white transition"
-            >
-              <span className="text-lg">{item.icon}</span>
-              <span>{item.name}</span>
-            </Link>
-          ))}
+          {settingItems.map((item) =>
+            item.name === "Logout" ? (
+              <button
+                key={item.name}
+                onClick={handleLogout}
+                className="flex items-center space-x-3 p-2 rounded-md text-sm font-medium text-gray-700 hover:bg-white transition w-full"
+              >
+                <span className="text-lg">{item.icon}</span>
+                <span>{item.name}</span>
+              </button>
+            ) : (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="flex items-center space-x-3 p-2 rounded-md text-sm font-medium text-gray-700 hover:bg-white transition"
+              >
+                <span className="text-lg">{item.icon}</span>
+                <span>{item.name}</span>
+              </Link>
+            )
+          )}
         </div>
       </div>
     </aside>

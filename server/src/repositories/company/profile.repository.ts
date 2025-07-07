@@ -19,4 +19,27 @@ export default class CompanyProfileRepository implements ICompanyProfileReposito
 
         return company as CompanyProfileDto | null;
     }
+
+    async updateProfile(companyId: string, data: Partial<CompanyProfileDto>): Promise<CompanyProfileDto | null> {
+      const updated = await this.companyModel.findByIdAndUpdate(
+        companyId,
+        {
+          $set: {
+            name: data.name,
+            logoUrl: data.logoUrl,
+            website: data.website,
+            foundedIn: data.foundedIn,
+            employees: data.employees,
+            location: data.location,
+            industry: data.industry,
+            about: data.about,
+            phone: data.phone
+          },
+        },
+        { new: true }
+      );
+
+      return updated as CompanyProfileDto | null;
+    }
+
 }

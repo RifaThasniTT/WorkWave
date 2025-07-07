@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from 'react';
 import AdminHeader from '@/components/admin/Header';
 import PageHeading from '@/components/admin/PageHeading';
@@ -18,44 +18,48 @@ interface User {
 const UserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSearch = (query: string) => {
-    
-  };
-
-  const loadUsers = async () => {
+  const loadUsers = async (page: number, search: string) => {
     try {
       setLoading(true);
-      const data = await fetchAllUsers({search: '', page: '1'});
-      console.log(data);
-      setUsers(data?.data?.users); 
-    } catch (err) {
-      console.error('Failed to load users', err);
+      const data = await fetchAllUsers({ search, page: page.toString() });
+      setUsers(data?.data?.users);
+      setTotalUsers(data?.data?.total);
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadUsers();
-  }, []);
+    loadUsers(currentPage, searchQuery);
+  }, [currentPage, searchQuery]);
 
   const handleBlockToggle = async (userId: string, currentStatus: boolean) => {
     try {
-      const updated = await toggleBlockUser(userId, currentStatus ? false : true);
-      
+      await toggleBlockUser(userId, !currentStatus);
       toast.success("User status updated!");
-      loadUsers();
-    } catch (err) {
-      console.error("Action failed", err);
-      toast.error("Failed to update user status");
+      loadUsers(currentPage, searchQuery);
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message);
     }
   };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  };
+  const totalPages = Math.ceil(totalUsers / 10);
 
   return (
     <div className="flex h-screen">
       <AdminSidebar />
-
       <div className="flex flex-col flex-1">
         <AdminHeader />
         <div className="p-6 ml-60 overflow-auto flex-1">
@@ -84,7 +88,7 @@ const UserManagement = () => {
                       <tr key={user._id} className="border-b hover:bg-gray-50">
                         <td className="p-4">{user.name}</td>
                         <td className="p-4">{user.email}</td>
-                        <td className="p-4">{user.isBlocked ? "Blocked": "Active"}</td>
+                        <td className="p-4">{user.isBlocked ? "Blocked" : "Active"}</td>
                         <td className="p-4">{new Date(user.createdAt).toLocaleDateString()}</td>
                         <td className="p-4">
                           <button
@@ -104,8 +108,41 @@ const UserManagement = () => {
                     </tr>
                   )}
                 </tbody>
-                
               </table>
+
+              {/* Pagination UI */}
+              {totalPages > 0 && (
+                <div className="flex justify-center mt-6 gap-2">
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 text-sm border rounded disabled:opacity-50"
+                  >
+                    Prev
+                  </button>
+                  {[...Array(totalPages)].map((_, index) => {
+                    const page = index + 1;
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-1 text-sm border rounded ${
+                          currentPage === page ? 'bg-blue-500 text-white' : 'bg-white'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 text-sm border rounded disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

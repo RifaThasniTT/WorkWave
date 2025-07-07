@@ -108,4 +108,20 @@ export default class UserAuthService implements IUserAuthService{
         logger.debug(`otp is ${otp} exprires at ${otpExpiry}`);
         return { message: `New OTP is send to email`}
     }
+
+    async resetPassword(email: string, password: string): Promise<{ message: string }> {
+        const user = await this.userAuthRepository.findByEmail(email);
+        if (!user) {
+            logger.warn("Reset password request from non-existent user");
+            throw new Error("User not found!");
+        }
+    
+        const saltRounds = parseInt(process.env.SALT_ROUNDS || '10');
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+    
+        await this.userAuthRepository.updatePasswordByEmail(email, hashedPassword);
+    
+        return { message: "Password updated successfully!" };
+    }
+    
 }

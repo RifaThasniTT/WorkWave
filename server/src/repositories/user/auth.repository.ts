@@ -34,4 +34,9 @@ export default class UserAuthRepository extends BaseRepository<IUser> implements
             { new: true }
         )
     }
+
+    async updatePasswordByEmail(email: string, hashedPassword: string): Promise<void> {
+        await this.userModel.updateOne({ email }, { $set: { password: hashedPassword } });
+    }
+
 }

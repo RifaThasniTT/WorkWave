@@ -1,4 +1,5 @@
 import API  from "@/lib/axiosInstance";
+import { isAxiosError } from "axios";
 
 const fetchAllUsers = async ({ search = "", page = "1" }: { search?: string; page?: string }) => {
   try {
@@ -11,9 +12,11 @@ const fetchAllUsers = async ({ search = "", page = "1" }: { search?: string; pag
     });
 
     return response.data;
-  } catch (error: any) {
-    console.error(error);
-    throw new Error(error?.response?.data?.message || "Failed to fetch users");
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(error?.response?.data?.error || "Failed to fetch users!");
+    }
+    throw new Error("Something went wrong!");
   }
 };
 
@@ -30,9 +33,11 @@ const toggleBlockUser = async (userId: string, isBlocked: boolean) => {
       }
     );
     return response.data;
-  } catch (error: any) {
-    console.error("Failed to update user status:", error);
-    throw new Error(error?.response?.data?.message || "Error updating user status");
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(error?.response?.data?.error || "Error updating user status");
+    }
+    throw new Error("Somthing went wrong!");
   }
 };
 

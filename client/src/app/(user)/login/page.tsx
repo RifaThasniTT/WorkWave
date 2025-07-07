@@ -73,25 +73,9 @@ export default function LoginPage() {
       localStorage.setItem("userAccessToken", result.data.accessToken);
 
       router.replace("/");
-    } catch (error: any) {
-      setFormError(error.message || "Login failed");
-      console.error("Login error:", error);
-    
-      // Handle specific error messages from backend
-      const errorMessage = error?.message || "Login failed. Please try again.";
-      
-      // Show appropriate toast based on error type
-      if (errorMessage.includes("not found")) {
-        toast.error("Account not found. Please sign up first.");
-      } else if (errorMessage.includes("verify your email")) {
-        toast.error("Please verify your email via OTP first.");
-      } else if (errorMessage.includes("blocked")) {
-        toast.error("Your account has been blocked. Contact support.");
-      } else if (errorMessage.includes("Invalid credentials")) {
-        toast.error("Invalid email or password.");
-      } else {
-        toast.error(errorMessage);
-      }
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }

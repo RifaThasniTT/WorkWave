@@ -39,10 +39,9 @@ export default function AdminLogin() {
       localStorage.setItem("adminAccessToken", response.data);
 
       router.push("/admin/dashboard"); // Redirect after login
-    } catch (error: any) {
-      console.log("error:",error);
-      const message = error?.response?.data?.message || "Something went wrong!";
-      toast.error(message);
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }

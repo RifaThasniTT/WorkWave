@@ -45,9 +45,9 @@ export default function OTPVerification() {
       setTimeout(() => {
         router.replace("/company/login");
       }, 1500);
-    } catch (err: any) {
-      console.log(err)
-      toast.error(err?.response?.data?.message || "Invalid or expired OTP");
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
@@ -62,8 +62,9 @@ export default function OTPVerification() {
       await resendOtp({ email });
       toast.success("OTP resent to your email.");
       setSeconds(59);
-    } catch (err: any) {
-      setError(err.message || "Failed to resend OTP");
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message);
     }
   };
 

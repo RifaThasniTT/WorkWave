@@ -12,6 +12,8 @@ import AdminUserController from "../controllers/admin/user.controller";
 import { IAdminUserController } from "../interfaces/admin/user.controller";
 import AdminCompanyController from "../controllers/admin/company.controller";
 import { IAdminCompanyController } from "../interfaces/admin/company.controller";
+import CompanyProfileController from "../controllers/company/profile.controller";
+import { ICompanyProfileController } from "../interfaces/company/profile.controller";
 
 //Service Imports
 import UserAuthService from "../services/user/auth.service";
@@ -69,6 +71,7 @@ container.bind<IUserAuthController>(TYPES.UserAuthController).to(UserAuthControl
 container.bind<ICompanyAuthController>(TYPES.CompanyAuthController).to(CompanyAuthController);
 container.bind<IAdminUserController>(TYPES.AdminUserController).to(AdminUserController);
 container.bind<IAdminCompanyController>(TYPES.AdminCompanyController).to(AdminCompanyController);
+container.bind<ICompanyProfileController>(TYPES.CompanyProfileController).to(CompanyProfileController);
 
 container.bind<Model<IUser>>(TYPES.UserModel).toConstantValue(UserModel);
 container.bind<Model<IAdmin>>(TYPES.AdminModel).toConstantValue(AdminModel);

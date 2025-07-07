@@ -85,8 +85,9 @@ export default function SignupPage() {
 
       toast.success("Registered! Redirecting to OTP verification...");
       router.push(`/company/otp-verification?email=${encodeURIComponent(email)}`);
-    } catch (err: any) {
-      toast.error(err.message || "Registration failed");
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }

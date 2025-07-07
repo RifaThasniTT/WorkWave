@@ -4,7 +4,7 @@ import AdminHeader from "@/components/admin/Header";
 import PageHeading from "@/components/admin/PageHeading";
 import SearchBar from "@/components/admin/SearchBar";
 import AdminSidebar from "@/components/admin/Sidebar";
-import { fetchAllRequests } from "@/lib/api/admin/company";
+import { fetchAllRequests, updateRequestStatus } from "@/lib/api/admin/company";
 import { toast } from "sonner";
 
 interface Request {
@@ -19,28 +19,54 @@ interface Request {
 const RequestManagement = () => {
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [totalRequests, setTotalRequests] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const loadRequests = async (search = "") => {
+  const loadRequests = async (search = '', page = 1) => {
     try {
       setLoading(true);
-      const result = await fetchAllRequests({ search, page: "1" });
+      const result = await fetchAllRequests({ search, page: page.toString() });
       setRequests(result?.data?.companies || []);
+      setTotalRequests(result?.data?.total || 0);
     } catch (error) {
       const err = error as Error; 
-      console.error("Failed to fetch requests", err);
-      toast.error("Something went wrong");
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleSearch = (query: string) => {
-    loadRequests(query);
+    setSearchQuery(query);
+    setCurrentPage(1);
   };
 
   useEffect(() => {
-    loadRequests();
-  }, []);
+    loadRequests(searchQuery, currentPage);
+  }, [searchQuery, currentPage]);
+
+  const handleUpdateRequest = async (e: React.ChangeEvent<HTMLSelectElement>, id: string) => {
+    const newStatus = e.target.value;
+    if (!["approved", "rejected"].includes(newStatus)) {
+      toast.error("Invalid status!");
+      return;
+    }
+    setLoadingId(id);
+    try {
+      await updateRequestStatus({ id, status: newStatus });
+      toast.success('Status updated successfully!');
+      loadRequests(searchQuery, currentPage);
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message);
+    } finally {
+      setLoadingId(null);
+    }
+  }
+
+  const totalPages = Math.ceil(totalRequests / 10);
 
   return (
     <div className="flex h-screen">
@@ -91,9 +117,15 @@ const RequestManagement = () => {
                           </a>
                         </td>
                         <td className="p-4">
-                          <select className="px-3 py-1 border rounded-md bg-white text-gray-700">
-                            <option>approved</option>
-                            <option>rejected</option>
+                          <select 
+                            className="px-3 py-1 border rounded-md bg-white text-gray-700"
+                            value={req.status}
+                            onChange={(e) => handleUpdateRequest(e, req._id)}
+                            disabled={loadingId === req._id}
+                          >
+                            <option value={'pending'}>Pending</option>
+                            <option value={'approved'}>Approved</option>
+                            <option value={'rejected'}>Rejected</option>
                           </select>
                         </td>
                       </tr>
@@ -107,6 +139,36 @@ const RequestManagement = () => {
                   )}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {totalPages > 0 && (
+            <div className="flex justify-center mt-6 space-x-2">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="w-8 h-8 flex items-center justify-center rounded-md border text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+              >
+                ←
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-8 h-8 rounded-md text-sm ${
+                    currentPage === page ? 'bg-blue-500 text-white' : 'border text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="w-8 h-8 flex items-center justify-center rounded-md border text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+              >
+                →
+              </button>
             </div>
           )}
         </div>

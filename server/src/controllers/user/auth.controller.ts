@@ -7,6 +7,7 @@ import HttpStatus from "../../utils/httpstatus";
 import { errorResponse, successResponse } from "../../types/types";
 import { StatusMessages } from "../../utils/statusMessages";
 import {IUserAuthController} from "../../interfaces/user/auth.controller";
+import { setTokensAsCookies } from "../../utils/token";
 
 
 @injectable()
@@ -34,6 +35,7 @@ export default class UserAuthController implements IUserAuthController {
             const { email, password } = req.body;
 
             const result = await this._authService.login(email, password);
+            setTokensAsCookies(res, result.accessToken, result.refreshToken, "user");
             res.status(HttpStatus.OK).json(successResponse("Login successful", result));
         } catch (error) {
             const err = error as Error;
@@ -65,6 +67,25 @@ export default class UserAuthController implements IUserAuthController {
             const err = error as Error;
             logger.error(`OTP resent failed`, err);
             res.status(HttpStatus.BAD_REQUEST).json(errorResponse("Failed to resent otp", err.message));
+        }
+    }
+
+    async resetPassword(req: Request, res: Response): Promise<void> {
+        try {
+            const { email, password } = req.body;
+
+            if (!email || !password) {
+                res.status(HttpStatus.BAD_REQUEST).json(errorResponse("Email and password are required!"));
+                return;
+            }
+
+            const result = await this._authService.resetPassword(email, password);
+
+            res.status(HttpStatus.OK).json(successResponse("User password successfully reset!"));
+        } catch (error) {
+            const err = error as Error;
+            logger.error("Reset password error", err);
+            res.status(HttpStatus.BAD_REQUEST).json(errorResponse("Failed to reset password", err.message));
         }
     }
 }

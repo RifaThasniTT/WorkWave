@@ -82,9 +82,9 @@ export default function SignupPage() {
       setLoading(true);
       await register(payload);
       router.replace(`/otp-verification?email=${encodeURIComponent(email)}`);
-    } catch (err: any) {
-      console.error("error user registering", err);
-      toast.error(err);
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }

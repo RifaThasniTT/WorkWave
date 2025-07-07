@@ -25,7 +25,7 @@ export const verifyToken = (expectedRole: string) =>
         return
       }
 
-      const token = authHeader.split(" ")[1]; // Extract the token part from "Bearer TOKEN"
+      const token = authHeader.split(" ")[1]; 
 
       const decoded = jwt.verify(token, ACCESS_TOKEN_SECRET) as {
         id: string;
